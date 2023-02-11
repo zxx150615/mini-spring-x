@@ -1,5 +1,11 @@
-#思考：如何实现在一个Bean中注入另外一个Bean呢？
-	#注入另外一个Bean，其实也是相当于Bean的一个属性，只是是一个Bean的引用，所以需要一个Bean引用的类，来代表另一个Bean的注入
-		a. BeanReference
-	#在创建Bean的逻辑里面，如果遇到属性属于BeanReference的话，那么先实例化这个Bean，（前提是这个Bean的定义信息已经注入到工厂类中）
-		a. AbstractAutowireCapableBeanFactory
+#思考：Bean是通过加载资源来获取Bean的定义信息的，那么是如何加载的呢？
+	##1. 首先需要定义一个资源类接口
+		a.Resource
+	##2. 还需要一个资源加载器接口
+		a.ResourceLoader
+	##3. 将资源获取类型分成类目录资源，URL资源，系统文件资源，都是实现资源类接口，然后各自通过自己的实现方式获取资源
+		a.ClassPathResource
+		b.UrlResource
+		c.FileSystemResource
+	##4. 需要一个默认的资源加载器，能够接收资源并且加载资源。
+		a.DefaultResourceLoader
