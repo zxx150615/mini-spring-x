@@ -35,7 +35,9 @@ public class PopulateBeanWithPropertyValuesTest {
         BeanDefinition carBeanDefinition = new BeanDefinition(Car.class);
         PropertyValues carPropertyValues = new PropertyValues();
         PropertyValue brandProperty = new PropertyValue("brand", "兰博基尼");
+        //PropertyValue personProperty = new PropertyValue("person", new BeanReference("person"));
         carPropertyValues.addPropertyValue(brandProperty);
+        // carPropertyValues.addPropertyValue(personProperty);
         carBeanDefinition.setPropertyValues(carPropertyValues);
         BeanDefinition personBeanDefinition = new BeanDefinition(Person.class);
         PropertyValues personPropertyValues = new PropertyValues();
