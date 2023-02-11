@@ -7,7 +7,7 @@ import java.lang.reflect.Constructor;
 
 public class SimpleInstantiationStrategy implements InstantiationStrategy {
     /**
-     * 简单的Bean 实例化策略
+     *  简单的Bean 实例化策略
      *
      * @param beanDefinition
      * @return
