@@ -4,6 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import com.zxx.minispringx.beans.BeansException;
 import com.zxx.minispringx.beans.PropertyValue;
 import com.zxx.minispringx.beans.factory.config.BeanDefinition;
+import com.zxx.minispringx.beans.factory.config.BeanReference;
+import org.springframework.context.annotation.Bean;
 
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory {
 
@@ -29,16 +31,22 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     private void applyPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition) {
+        // 现在填充属性，需要再考虑下属性本身是Bean的情况
         try {
             for (PropertyValue propertyValue : beanDefinition.getPropertyValues().getPropertyValues()) {
                 String name = propertyValue.getName();
                 Object value = propertyValue.getValue();
 
+                // 如果是BeanReference，则通过先实例化另外一个Bean，再注入
+                if (value instanceof BeanReference) {
+                    BeanReference beanReference = (BeanReference) value;
+                    value = getBean(beanReference.getBeanName());
+                }
                 // 通过反射设置属性
                 BeanUtil.setFieldValue(bean, name, value);
             }
         } catch (Exception e) {
-            throw new BeansException("Error setting property values for bean" + beanName, e);
+            throw new BeansException("Error setting property values for bean: " + beanName, e);
         }
     }
 
