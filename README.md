@@ -1,9 +1,15 @@
-#思考：Spring如何实现通过资源加载器来加载xml并注册到Bean工厂中
-	##1.需要一个Bean定义读取器接口，可以接收资源加载器和BeanDefinition加载器，负责读取资源信息，读取成功之后，加载BeanDefinition，并加载到BeanDefinition注册器中
-		BeanDefinitionReader
-	##2. 需要一个Bean定义信息读取器，负责将资源加载，读取成BeanDefinition之后，再注册到BeanDefinition注册器中
-		XmlBeanDefinitionReader
-	##3.那么如何将BeanDefintionReader和DefaultListableBeanFactory结合起来呢？那就是让DefaultListableBeanFactory实现BeanDefinitionRegistry，这样相当于可以把读取后的BeanDefinition注入到对应的工厂中，并对外提供
-		DefaultListableBeanFactory
-	##4. 剩下的东西就是BeanDefinitionReader如何读取解析XML文件，并得到想要的Bean信息了。
-		loadBeanDefinitions
+#重点！理解BeanFactoryPostProcessor和BeanPostProcessor
+	#1. BeanFactoryPostProcessor，Bean工厂后置处理器，运行我们在实例化Bean之前，修改BeanDefinition的信息，注意时机是在Bean实例化之前，也就是修改Bean的定义信息
+		常用的BeanFactoryPostProcessor
+			PropertyPlaceholderConfigurer
+				已废弃，能够将properties的配置配置到xml的占位符处，可以用在mybatis的设置处理上
+			CustomEditorConfigurer
+				能够实现类型的转换
+					可以自己自定义处理器
+	#2.BeanPostProcesser，Bean前后处理器，提供两个方法，能够在Bean实例化完，填充属性之后，在初始化之前和初始化之后，对Bean进行前置和后置处理。会在后续AOP中用到
+		BeanPostProcesser
+	#3. 通过以上方法，用户可以通过实现这两个接口来实现对BeanDefinition的修改和对Bean初始化前后的处理
+		CustomerBeanPostProcessor
+		CustomBeanFactoryPostProcessor
+	#4.BeanPostProcessor是如何做到在BeanFactory中执行前后操作的呢?是在实例化Bean，填充了属性之后，调用初始化Bean，并在初始化的前后，调用现有的BeanPostProcessor对Bean进行维护处理
+		AbstractAutowireCapableBeanFactory
