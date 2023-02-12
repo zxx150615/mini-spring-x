@@ -3,11 +3,13 @@ package com.zxx.minispringx.beans.factory.support;
 import cn.hutool.core.bean.BeanUtil;
 import com.zxx.minispringx.beans.BeansException;
 import com.zxx.minispringx.beans.PropertyValue;
+import com.zxx.minispringx.beans.factory.config.AutowireCapableBeanFactory;
 import com.zxx.minispringx.beans.factory.config.BeanDefinition;
 import com.zxx.minispringx.beans.factory.config.BeanReference;
 import org.springframework.context.annotation.Bean;
 
-public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory {
+public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements
+        AutowireCapableBeanFactory {
 
     private InstantiationStrategy instantiationStrategy = new SimpleInstantiationStrategy();
 

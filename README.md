@@ -1,11 +1,9 @@
-#思考：Bean是通过加载资源来获取Bean的定义信息的，那么是如何加载的呢？
-	##1. 首先需要定义一个资源类接口
-		a.Resource
-	##2. 还需要一个资源加载器接口
-		a.ResourceLoader
-	##3. 将资源获取类型分成类目录资源，URL资源，系统文件资源，都是实现资源类接口，然后各自通过自己的实现方式获取资源
-		a.ClassPathResource
-		b.UrlResource
-		c.FileSystemResource
-	##4. 需要一个默认的资源加载器，能够接收资源并且加载资源。
-		a.DefaultResourceLoader
+#思考：Spring如何实现通过资源加载器来加载xml并注册到Bean工厂中
+	##1.需要一个Bean定义读取器接口，可以接收资源加载器和BeanDefinition加载器，负责读取资源信息，读取成功之后，加载BeanDefinition，并加载到BeanDefinition注册器中
+		BeanDefinitionReader
+	##2. 需要一个Bean定义信息读取器，负责将资源加载，读取成BeanDefinition之后，再注册到BeanDefinition注册器中
+		XmlBeanDefinitionReader
+	##3.那么如何将BeanDefintionReader和DefaultListableBeanFactory结合起来呢？那就是让DefaultListableBeanFactory实现BeanDefinitionRegistry，这样相当于可以把读取后的BeanDefinition注入到对应的工厂中，并对外提供
+		DefaultListableBeanFactory
+	##4. 剩下的东西就是BeanDefinitionReader如何读取解析XML文件，并得到想要的Bean信息了。
+		loadBeanDefinitions

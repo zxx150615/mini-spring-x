@@ -4,6 +4,7 @@ import cn.hutool.core.io.IoUtil;
 import com.zxx.minispringx.core.io.DefaultResourceLoader;
 import com.zxx.minispringx.core.io.Resource;
 import org.junit.Test;
+import org.junit.jupiter.api.DynamicTest;
 
 import java.io.InputStream;
 

@@ -1,4 +1,4 @@
-package com.zxx.minispringx.beans.factory.beans;
+package com.zxx.minispringx.beans.testBeans;
 
 public class Car {
 
