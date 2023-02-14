@@ -1,15 +1,36 @@
-#重点！理解BeanFactoryPostProcessor和BeanPostProcessor
-	#1. BeanFactoryPostProcessor，Bean工厂后置处理器，运行我们在实例化Bean之前，修改BeanDefinition的信息，注意时机是在Bean实例化之前，也就是修改Bean的定义信息
-		常用的BeanFactoryPostProcessor
-			PropertyPlaceholderConfigurer
-				已废弃，能够将properties的配置配置到xml的占位符处，可以用在mybatis的设置处理上
-			CustomEditorConfigurer
-				能够实现类型的转换
-					可以自己自定义处理器
-	#2.BeanPostProcesser，Bean前后处理器，提供两个方法，能够在Bean实例化完，填充属性之后，在初始化之前和初始化之后，对Bean进行前置和后置处理。会在后续AOP中用到
-		BeanPostProcesser
-	#3. 通过以上方法，用户可以通过实现这两个接口来实现对BeanDefinition的修改和对Bean初始化前后的处理
-		CustomerBeanPostProcessor
-		CustomBeanFactoryPostProcessor
-	#4.BeanPostProcessor是如何做到在BeanFactory中执行前后操作的呢?是在实例化Bean，填充了属性之后，调用初始化Bean，并在初始化的前后，调用现有的BeanPostProcessor对Bean进行维护处理
-		AbstractAutowireCapableBeanFactory
+#思考：如何做到由应用上下文来启动整个容器
+	##1. 需要建立一个应用上下文接口，我们想要做到的就是当应用上下文加载了Bean的配置文件之后，就能够将所有的Bean都给加载到容器中，所以我们需要一个Refresh()刷新方法，每次都会去刷新Bean容器
+		ApplicationContext
+		ConfigurableApplicationContext
+	##2.而在每次的刷新动作值中，都会按照一个流程去走一遍Bean初始化，下面对Bean初始化的流程做一个梳理
+		AbstractApplicationContext
+	##3. 每一层都在层层封装，可以在上一层定义一个抽象接口，然后由下一层去实现，从而把整个流程给串起来，最下面一层也就是门面层，可以由用户直接新建，然后传入加载路径，从而初始化Bean
+		AbstractRefreshableApplicationContext
+		AbstractXmlApplicationContext
+	应用上下文初始化Bean的流程
+		1.先刷新一下bean工厂
+			刷新工厂中就包括了很多的逻辑在里面了
+				1.先到第二层去新建一个BeanFactory工厂
+					AbstractRefreshableApplicationContext
+				2.再到第三层，去加载BeanDefinition定义信息，通过XMLBeanDefinitionReader读取BeanDefinition
+					AbstractXmlApplicationContext
+				3.再到第三层去获取对应的资源地址，也就是最底层，门面层，让用户可以直接指定资源地址的地方
+					ClassPathXmlApplicationContext
+				每一层负责的功能都不一样，井然有序。每次都会先这样刷新工厂，也就是读取到了所有的BeanDefinition的信息，执行了步骤1，2.
+					1.找到对应的XML文件
+					2.将xml转换为BeanDefinition
+		2.再把BeanFactoryPostProcessor给加载执行一遍
+			也就是找到所有的BeanFactoryPostProcessor，不管是Spring自带的，还是用户自己定义的（在Xml中），先把这个BeanFactoryPostProcessor给初始化好了，也就是会先初始化一些Processor的Bean，并且先进行处理，这个就是对BeanDefinition的信息进行处理的一个Processor，也就是步骤3
+				3.先初始化beanFactoryPostProcessor，并且执行相关操作
+		3.再注册一遍BeanPostProcessor
+			将所有的BeanPostProcessor给找到并且注册进来。这个也是先初始化这些ProcessorBean。主要用于在普通的Bean初始化的前后进行处理
+				4.注册所有的BeanPostProcessor
+		4.把所有的Bean都进行实例化
+			现在再来开始实例化所有普通的Bean
+				5.首先是先去单例工厂里面找一下Bean是否已创建，已创建直接返回
+				6.获取对应的BeanDefinition。然后进行实例化Bean
+				7.实例化完之后先进行属性的填充
+				8.填充完毕之后，就可以进行初始化
+				9.在初始化之前，先用注册的这些BeanPostProcessor对刚刚填充完属性，且实例化完的Bean进行前置处理
+				10.进行初始化
+				11.初始化之后，再进行后置处理，处理完之后注册到单例Factory中，至此，这个Bean已经注册到了单例factory中，下次可以直接获取

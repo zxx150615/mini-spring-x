@@ -2,6 +2,7 @@ package com.zxx.minispringx.beans.factory;
 
 import com.zxx.minispringx.beans.factory.config.AutowireCapableBeanFactory;
 import com.zxx.minispringx.beans.factory.config.BeanDefinition;
+import com.zxx.minispringx.beans.factory.config.BeanPostProcessor;
 import com.zxx.minispringx.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.BeansException;
 
@@ -17,4 +18,7 @@ public interface ConfigurableListableBeanFactory
      */
     BeanDefinition getBeanDefinition(String beanName) throws BeansException;
 
+    void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
+
+    void preInstantiateSingletons() throws BeansException;
 }
