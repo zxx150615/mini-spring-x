@@ -1,36 +1,9 @@
-#思考：如何做到由应用上下文来启动整个容器
-	##1. 需要建立一个应用上下文接口，我们想要做到的就是当应用上下文加载了Bean的配置文件之后，就能够将所有的Bean都给加载到容器中，所以我们需要一个Refresh()刷新方法，每次都会去刷新Bean容器
-		ApplicationContext
-		ConfigurableApplicationContext
-	##2.而在每次的刷新动作值中，都会按照一个流程去走一遍Bean初始化，下面对Bean初始化的流程做一个梳理
-		AbstractApplicationContext
-	##3. 每一层都在层层封装，可以在上一层定义一个抽象接口，然后由下一层去实现，从而把整个流程给串起来，最下面一层也就是门面层，可以由用户直接新建，然后传入加载路径，从而初始化Bean
-		AbstractRefreshableApplicationContext
-		AbstractXmlApplicationContext
-	应用上下文初始化Bean的流程
-		1.先刷新一下bean工厂
-			刷新工厂中就包括了很多的逻辑在里面了
-				1.先到第二层去新建一个BeanFactory工厂
-					AbstractRefreshableApplicationContext
-				2.再到第三层，去加载BeanDefinition定义信息，通过XMLBeanDefinitionReader读取BeanDefinition
-					AbstractXmlApplicationContext
-				3.再到第三层去获取对应的资源地址，也就是最底层，门面层，让用户可以直接指定资源地址的地方
-					ClassPathXmlApplicationContext
-				每一层负责的功能都不一样，井然有序。每次都会先这样刷新工厂，也就是读取到了所有的BeanDefinition的信息，执行了步骤1，2.
-					1.找到对应的XML文件
-					2.将xml转换为BeanDefinition
-		2.再把BeanFactoryPostProcessor给加载执行一遍
-			也就是找到所有的BeanFactoryPostProcessor，不管是Spring自带的，还是用户自己定义的（在Xml中），先把这个BeanFactoryPostProcessor给初始化好了，也就是会先初始化一些Processor的Bean，并且先进行处理，这个就是对BeanDefinition的信息进行处理的一个Processor，也就是步骤3
-				3.先初始化beanFactoryPostProcessor，并且执行相关操作
-		3.再注册一遍BeanPostProcessor
-			将所有的BeanPostProcessor给找到并且注册进来。这个也是先初始化这些ProcessorBean。主要用于在普通的Bean初始化的前后进行处理
-				4.注册所有的BeanPostProcessor
-		4.把所有的Bean都进行实例化
-			现在再来开始实例化所有普通的Bean
-				5.首先是先去单例工厂里面找一下Bean是否已创建，已创建直接返回
-				6.获取对应的BeanDefinition。然后进行实例化Bean
-				7.实例化完之后先进行属性的填充
-				8.填充完毕之后，就可以进行初始化
-				9.在初始化之前，先用注册的这些BeanPostProcessor对刚刚填充完属性，且实例化完的Bean进行前置处理
-				10.进行初始化
-				11.初始化之后，再进行后置处理，处理完之后注册到单例Factory中，至此，这个Bean已经注册到了单例factory中，下次可以直接获取
+#思考：Bean的初始化和销毁是怎么做到的？
+	##1.目前暂时有两种方案实现
+		##1.通过在Bean中自定义初始化方法和销毁方法，并且在XML中注册进去
+			这个是在bean中定义两个方法，然后在xml声明Bean中把这两个方法给声明一下
+		##2.通过基础初始化Bean和销毁Bean的接口，同时实现对应的方法
+			这个是实现了对应的接口，并写好对应的实现
+	##2.在什么时候执行初始化和销毁方法的
+		##1.初始化的方法，在创建Bean的逻辑那里，当Bean在执行完BeanPostProcessor的前置方法，准备进行Bean的初始化的时候，就可以调用Bean的初始化方法了。
+		##2. 销毁的方法，在执行完BeanPostProcessor的后置处理方法之后，再执行销毁注册方法，把那些具备了实现销毁方法的Bean给注册起来，然后在虚拟机关闭，或者容器销毁时，调用销毁方法。也可以手动销毁

@@ -1,6 +1,10 @@
 package com.zxx.minispringx.beans.factory.beans;
 
-public class Person {
+import com.zxx.minispringx.beans.BeansException;
+import com.zxx.minispringx.beans.factory.DisposableBean;
+import com.zxx.minispringx.beans.factory.InitializingBean;
+
+public class Person implements InitializingBean, DisposableBean {
 
     private String name;
 
@@ -39,5 +43,23 @@ public class Person {
                 ", age=" + age +
                 ", car=" + car +
                 '}';
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        System.out.println("DisposableBean destroy方法");
+    }
+
+    @Override
+    public void afterPropertiesSet() throws BeansException {
+        System.out.println("InitializingBean init方法");
+    }
+
+    public void customInitMethod(){
+        System.out.println("自定义初始化方法");
+    }
+
+    public void customDestroyMethod(){
+        System.out.println("自定义销毁方法");
     }
 }
