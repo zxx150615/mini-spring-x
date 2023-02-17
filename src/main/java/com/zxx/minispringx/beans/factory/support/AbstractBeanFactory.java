@@ -30,6 +30,11 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     protected abstract BeanDefinition getBeanDefinition(String beanName) throws BeansException;
 
     @Override
+    public <T> T getBean(String name, Class<T> requiredType) throws org.springframework.beans.BeansException {
+        return ((T) getBean(name));
+    }
+
+    @Override
     public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
         // 有则覆盖
         this.beanPostProcessors.remove(beanPostProcessor);

@@ -20,4 +20,7 @@
     <bean class="com.zxx.minispringx.beans.factory.common.CustomBeanFactoryPostProcessor"/>
 
     <bean class="com.zxx.minispringx.beans.factory.common.CustomerBeanPostProcessor"/>
+
+    <bean id="helloService" class="com.zxx.minispringx.beans.factory.service.HelloService"/>
+
 </beans>

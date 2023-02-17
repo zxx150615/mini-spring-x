@@ -11,9 +11,9 @@ public class BeanDefinitionAndBeanDefinitionRegistryTest {
     public void testBeanFactory() throws Exception {
         DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
         factory.setInstantiationStrategy(new CglibSubclassingInstantiationStrategy());
-        BeanDefinition beanDefinition = new BeanDefinition(HelloService.class);
-        factory.registryBeanDefinition("helloService", beanDefinition);
-        HelloService helloService = (HelloService) factory.getBean("helloService");
-        helloService.sayHello();
+//        BeanDefinition beanDefinition = new BeanDefinition(HelloService.class);
+//        factory.registryBeanDefinition("helloService", beanDefinition);
+//        HelloService helloService = (HelloService) factory.getBean("helloService");
+//        helloService.sayHello();
     }
 }

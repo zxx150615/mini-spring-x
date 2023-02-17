@@ -5,6 +5,7 @@ import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.StrUtil;
 import com.zxx.minispringx.beans.BeansException;
 import com.zxx.minispringx.beans.PropertyValue;
+import com.zxx.minispringx.beans.factory.BeanFactoryAware;
 import com.zxx.minispringx.beans.factory.DisposableBean;
 import com.zxx.minispringx.beans.factory.InitializingBean;
 import com.zxx.minispringx.beans.factory.config.AutowireCapableBeanFactory;
@@ -56,14 +57,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             registerDisposableBean(beanName, new DisposableBeanAdapter(bean, beanName, beanDefinition));
         }
     }
-//
-//    public void registerDisposableBean(String beanName, DisposableBean disposableBean) {
-//
-//        disposableBeans.put(beanName, disposableBean);
-//
-//    }
 
     protected Object initializeBean(String beanName, Object bean, BeanDefinition beanDefinition) {
+        // 在初始化bean的时候，顺便注册设置一下BeanFactory
+        if (bean instanceof BeanFactoryAware) {
+            ((BeanFactoryAware) bean).setBeanFactory(this);
+        }
+
         // 执行BeanPostProcessor的前置执行方法
         Object wrappedBean = applyBeanPostProcessorBeforeInitializeBean(bean, beanName);
 
@@ -97,7 +97,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 调用Bean的初始化方法
         if (bean instanceof InitializingBean) {
             ((InitializingBean) bean).afterPropertiesSet();
-            ;
         }
         String initMethodName = beanDefinition.getInitMethodName();
         if (StrUtil.isNotEmpty(initMethodName)) {
@@ -110,6 +109,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     private Object applyBeanPostProcessorBeforeInitializeBean(Object existingBean, String beanName) throws BeansException {
+
+
         Object result = existingBean;
         for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
             Object current = beanPostProcessor.postProcessBeforeInitialization(result, beanName);

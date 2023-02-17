@@ -1,9 +1,6 @@
-#思考：Bean的初始化和销毁是怎么做到的？
-	##1.目前暂时有两种方案实现
-		##1.通过在Bean中自定义初始化方法和销毁方法，并且在XML中注册进去
-			这个是在bean中定义两个方法，然后在xml声明Bean中把这两个方法给声明一下
-		##2.通过基础初始化Bean和销毁Bean的接口，同时实现对应的方法
-			这个是实现了对应的接口，并写好对应的实现
-	##2.在什么时候执行初始化和销毁方法的
-		##1.初始化的方法，在创建Bean的逻辑那里，当Bean在执行完BeanPostProcessor的前置方法，准备进行Bean的初始化的时候，就可以调用Bean的初始化方法了。
-		##2. 销毁的方法，在执行完BeanPostProcessor的后置处理方法之后，再执行销毁注册方法，把那些具备了实现销毁方法的Bean给注册起来，然后在虚拟机关闭，或者容器销毁时，调用销毁方法。也可以手动销毁
+#思考：Bean如何感知到容器和BeanFactory的存在？
+	##1.其实也就是如何把Application和BeanFactory注册到Bean里面，让Bean在后续能够收到来自Application和BeanFactory的通知等等
+	##2.BeanFactory和Application的设置各不一样，但是按照老规矩，还是要先声明一个感知类接口，让Bean去实现这个接口
+	##3.BeanFactory的注入，只需要在创建Bean，初始化的时候，一起注入即可，当检查到该Bean的类型是感知类的时候，把自身工厂类注入即可。
+	##4.ApplicationContext的注入是通过BeanPostProcessor的方式来实现的，实现一个继续自BeanPostProcessor的ApplicationContext感知注册类，将容器注入进去。
+	    但是要先在容器刷新的方法中，先把Processor这个注册进去，这样就可以将自己的容器给配置进去了。然后再在创建Bean，进行前置处理的时候，实现ApplicationContext的感知注入
