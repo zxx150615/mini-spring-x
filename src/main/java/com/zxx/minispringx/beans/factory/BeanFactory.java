@@ -1,17 +1,10 @@
 package com.zxx.minispringx.beans.factory;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.zxx.minispringx.beans.BeansException;
 
-public class BeanFactory {
+public interface BeanFactory {
 
-    private Map<String, Object> beanMap =new HashMap<>();
+    Object getBean(String beanName) throws BeansException;
 
-    public void registerBean(String name, Object bean) {
-        beanMap.put(name, bean);
-    }
-
-    public Object getBean(String name){
-        return beanMap.get(name);
-    }
+    <T> T getBean(String name, Class<T> requiredType) throws BeansException;
 }
