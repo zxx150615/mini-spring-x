@@ -1,6 +1,5 @@
 package com.zxx.minispringx.context.support;
 
-import com.sun.org.apache.bcel.internal.util.ClassPath;
 import com.zxx.minispringx.beans.BeansException;
 
 /**
