@@ -1,6 +1,4 @@
-#思考：Bean如何感知到容器和BeanFactory的存在？
-	##1.其实也就是如何把Application和BeanFactory注册到Bean里面，让Bean在后续能够收到来自Application和BeanFactory的通知等等
-	##2.BeanFactory和Application的设置各不一样，但是按照老规矩，还是要先声明一个感知类接口，让Bean去实现这个接口
-	##3.BeanFactory的注入，只需要在创建Bean，初始化的时候，一起注入即可，当检查到该Bean的类型是感知类的时候，把自身工厂类注入即可。
-	##4.ApplicationContext的注入是通过BeanPostProcessor的方式来实现的，实现一个继续自BeanPostProcessor的ApplicationContext感知注册类，将容器注入进去。
-	    但是要先在容器刷新的方法中，先把Processor这个注册进去，这样就可以将自己的容器给配置进去了。然后再在创建Bean，进行前置处理的时候，实现ApplicationContext的感知注入
+#思考：FactoryBean又是一个啥？
+	##1.FactoryBean作为一种特别的Bean。其实是在Bean的外面包上了一层Factory。并且还申明了作用域，是否是单例模式
+	##2.在上面节点涉及这个操作呢？那就是当创建Bean逻辑的时候。
+		如果Bean已经在单例模式中有了，则在之后，去FactoryBean中获取一下，如果是FactoryBean类型，还要再检查一下是否是单例模式，如果还是单例，就再从这个FactoryBean中获取即可。如果不是的话，则直接调用FactoryBean的getObject方法，直接获取FactoryBean自己定义的Bean创建方法
