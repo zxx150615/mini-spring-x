@@ -4,12 +4,26 @@ import com.zxx.minispringx.beans.BeansException;
 import com.zxx.minispringx.beans.factory.ConfigurableListableBeanFactory;
 import com.zxx.minispringx.beans.factory.config.BeanFactoryPostProcessor;
 import com.zxx.minispringx.beans.factory.config.BeanPostProcessor;
+import com.zxx.minispringx.beans.factory.config.ConfigurableBeanFactory;
+import com.zxx.minispringx.context.ApplicationContext;
+import com.zxx.minispringx.context.ApplicationEvent;
+import com.zxx.minispringx.context.ApplicationListener;
 import com.zxx.minispringx.context.ConfigurableApplicationContext;
+import com.zxx.minispringx.context.event.ApplicationEventMulticaster;
+import com.zxx.minispringx.context.event.ContextClosedEvent;
+import com.zxx.minispringx.context.event.ContextRefreshedEvent;
+import com.zxx.minispringx.context.event.SimpleApplicationEventMulticaster;
 import com.zxx.minispringx.core.io.DefaultResourceLoader;
 
+import java.util.Collection;
 import java.util.Map;
 
 public abstract class AbstractApplicationContext extends DefaultResourceLoader implements ConfigurableApplicationContext {
+
+    private static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME ="applicationEventMulticaster";
+
+    private ApplicationEventMulticaster applicationEventMulticaster;
+
     @Override
     public void refresh() throws BeansException {
         // 应用上下文的刷新动作
@@ -26,8 +40,40 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         // 之后，先在其他bean实例化之前注册BeanPostProcessor
         registerBeanPostProcessor(beanFactory);
 
+        // 初始化事件发布者
+        initApplicationEventMulticaster();
+
+        //注册事件监听器
+        registerListeners();
+
         //提前实例化Bean
         beanFactory.preInstantiateSingletons();
+
+        //发布容器刷新完成事件
+        finishRefresh();
+    }
+
+    private void finishRefresh() {
+        publishEvent(new ContextRefreshedEvent(this));
+    }
+
+
+    @Override
+    public void publishEvent(ApplicationEvent event){
+        applicationEventMulticaster.multicastEvent(event);
+    }
+
+    private void registerListeners() {
+        Collection<ApplicationListener> applicationListeners = getBeanOfType(ApplicationListener.class).values();
+        for (ApplicationListener applicationListener : applicationListeners) {
+            applicationEventMulticaster.addApplicationListener(applicationListener);
+        }
+    }
+
+    private void initApplicationEventMulticaster() {
+        ConfigurableListableBeanFactory beanFactory = getBeanFactory();
+        applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
+        beanFactory.addSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, applicationEventMulticaster);
     }
 
     // 注册BeanPostProcessor也是一样的道理，主要是将各种BeanPostProcessor给注册到BeanFactory里面去就可以了。
@@ -87,6 +133,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     }
 
     protected void doClose() {
+        // 发布容器关闭事件
+        publishEvent(new ContextClosedEvent(this));
         destroyBeans();
     }
 
