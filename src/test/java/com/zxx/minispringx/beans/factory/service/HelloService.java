@@ -30,4 +30,8 @@ public class HelloService implements ApplicationContextAware, BeanFactoryAware {
         return beanFactory;
     }
 
+    public void sayHello(){
+        System.out.println("sayHello");
+    }
+
 }
