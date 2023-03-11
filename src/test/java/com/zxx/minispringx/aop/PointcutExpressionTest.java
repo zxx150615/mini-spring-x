@@ -1,6 +1,6 @@
 package com.zxx.minispringx.aop;
 
-import com.zxx.minispringx.aop.Aspectj.AspectJExpressionPointcut;
+import com.zxx.minispringx.aop.aspectj.AspectJExpressionPointcut;
 import com.zxx.minispringx.beans.factory.service.HelloService;
 import org.junit.Test;
 

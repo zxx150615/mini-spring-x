@@ -1,4 +1,19 @@
-#思考：FactoryBean又是一个啥？
-	##1.FactoryBean作为一种特别的Bean。其实是在Bean的外面包上了一层Factory。并且还申明了作用域，是否是单例模式
-	##2.在上面节点涉及这个操作呢？那就是当创建Bean逻辑的时候。
-		如果Bean已经在单例模式中有了，则在之后，去FactoryBean中获取一下，如果是FactoryBean类型，还要再检查一下是否是单例模式，如果还是单例，就再从这个FactoryBean中获取即可。如果不是的话，则直接调用FactoryBean的getObject方法，直接获取FactoryBean自己定义的Bean创建方法
+##思考：如何通过JDK动态代理实现Bean的前后置处理呢
+	1.首先是需要一个主体类，也就是我们要织入的方法
+		WorldService
+	2. 此外我们还需要一个对这个主体类的改造方法，需要实现MethodInterceptor，也就是方法拦截器，通过实现该方法，对主体方法进行改造
+		WorldServiceMethodInterceptor
+	3.需要一个能够承载一个类所需要元素的类，并且传入目标类，方法名匹配器（附带方法表达式），以及自定义的前后置方法
+		AdvisedSupport
+	4.一个动态代理类，直接注入AdvisedSupport，并且根据匹配器和传入的织入点进行匹配，如果匹配正确，则在执行正常的主体方法前，会执行方法拦截，并执行传入自定义的前后置方法。如果没有匹配的话，就正常执行方法
+		JdkDynamicAopProxy
+	其实整个过程，就是根据表达式匹配之后，如果匹配正确，则根据自定义的方法，进行方法拦截和执行，否则则正常执行
+	各个概念定义
+		1.一个织入点，也就是主体方法，外面可以用一个目标源头类包裹起来
+			WorldService，TargetSource
+		2.一个自定义前后置方法，当匹配正确之后，可以会在指定的方法前后进行前后置处理
+			WorldServiceInterceptor
+		3.一个支持器，内置以上源头类，自定义前后置方法，以及带着表达式的方法匹配器（有一个匹配方法，可以判断是否跟某个方法匹配）。负责为jdk动态代理类提供支援和封装
+			AdvisedSupport
+		4.JDK动态代理类。会根据传入的支持器，并根据匹配结果，决定是否进行方法拦截。最终都会返回一个代理对象，
+			JdkDynamicAopProxy

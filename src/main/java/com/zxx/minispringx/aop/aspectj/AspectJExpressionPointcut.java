@@ -1,4 +1,4 @@
-package com.zxx.minispringx.aop.Aspectj;
+package com.zxx.minispringx.aop.aspectj;
 
 import com.zxx.minispringx.aop.ClassFilter;
 import com.zxx.minispringx.aop.MethodMatcher;
